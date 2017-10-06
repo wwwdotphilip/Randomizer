@@ -1,5 +1,7 @@
 package au.com.bywave.randomizer;
 
+import android.util.Log;
+
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -10,6 +12,7 @@ public class Randomizer {
     private RandomListener mRandomListener;
     private int rotation = 0;
     private Random random;
+    public boolean isRandomizing = false;
 
 
     public Randomizer() {
@@ -23,6 +26,8 @@ public class Randomizer {
     }
 
     public void start() {
+        Log.v("Randomizer", "Randomizing");
+        isRandomizing = true;
         final Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -38,6 +43,7 @@ public class Randomizer {
                     }
                     timer.cancel();
                     rotation = 0;
+                    isRandomizing = false;
                 }
             }
         }, 0, 50);

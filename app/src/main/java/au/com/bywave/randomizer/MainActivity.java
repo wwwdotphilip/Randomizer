@@ -1,36 +1,36 @@
 package au.com.bywave.randomizer;
 
 import android.content.DialogInterface;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import static au.com.bywave.randomizer.R.raw.randomize;
+
 public class MainActivity extends AppCompatActivity {
     private Randomizer mRandomizer;
     private TextView result;
-    Button mStart, mSet;
+    private MediaPlayer mMediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         result = (TextView) findViewById(R.id.tvResult);
-        mStart = (Button) findViewById(R.id.btnStart);
-        mSet = (Button) findViewById(R.id.btnSet);
 
         mRandomizer = new Randomizer();
 
         mRandomizer.setOnRandomListener(new Randomizer.RandomListener() {
             @Override
             public void onChange(int value) {
-                final String parsedVal = value+"";
+                final String parsedVal = value + "";
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -41,26 +41,47 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onComplete(int value) {
-                final String parsedVal = value+"";
+                final String parsedVal = value + "";
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         result.setText(parsedVal);
-                        mStart.setEnabled(true);
-                        mSet.setEnabled(true);
+                        mMediaPlayer.stop();
+                        mMediaPlayer = MediaPlayer.create(MainActivity.this, R.raw.bell);
+                        mMediaPlayer.start();
+                        result.setClickable(true);
                     }
                 });
             }
         });
+
+        result.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!mRandomizer.isRandomizing) {
+                    randomize();
+                }
+            }
+        });
+
+        result.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if (!mRandomizer.isRandomizing) {
+                    setRange();
+                }
+                return false;
+            }
+        });
     }
 
-    public void randomize(View v) {
+    public void randomize() {
         mRandomizer.start();
-        mStart.setEnabled(false);
-        mSet.setEnabled(false);
+        mMediaPlayer = MediaPlayer.create(MainActivity.this, randomize);
+        mMediaPlayer.start();
     }
 
-    public void setRange(View v) {
+    public void setRange() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Set Range");
 
